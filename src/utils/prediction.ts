@@ -1,4 +1,4 @@
-import {
+import type {
   ActionType,
   Batch,
   BatchRecommendation,
@@ -10,7 +10,7 @@ import {
   EnrichedBatch,
   MarketPrice,
   RiskLevel,
-} from '../types';
+} from '../types.ts';
 
 export interface WhatIfParams {
   transportDelayHours: number;

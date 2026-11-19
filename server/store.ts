@@ -1,7 +1,7 @@
 import crypto from 'node:crypto';
 import fs from 'node:fs';
 import path from 'node:path';
-import {
+import type {
   ActionType,
   Batch,
   ChatMessage,
@@ -16,8 +16,8 @@ import {
   SystemSettings,
   User,
   UserRole,
-} from '../src/types';
-import { buildDynamicClusters, enrichBatch } from '../src/utils/prediction';
+} from '../src/types.ts';
+import { buildDynamicClusters, enrichBatch } from '../src/utils/prediction.ts';
 
 export interface StoredUser extends User {
   passwordHash?: string;
@@ -601,17 +601,23 @@ class AgriNexusStore {
     this.state = this.load();
   }
 
+  private activeDbFile = DB_FILE;
+
   private load(): DatabaseState {
-    try {
-      if (fs.existsSync(DB_FILE)) {
-        const raw = fs.readFileSync(DB_FILE, 'utf-8');
-        const parsed = JSON.parse(raw) as DatabaseState;
-        if (parsed && Array.isArray(parsed.users) && Array.isArray(parsed.batches)) {
-          return parsed;
+    const candidates = [DB_FILE, path.join('/tmp/agrinexus-data', 'agrinexus-db.json')];
+    for (const candidate of candidates) {
+      try {
+        if (fs.existsSync(candidate)) {
+          const raw = fs.readFileSync(candidate, 'utf-8');
+          const parsed = JSON.parse(raw) as DatabaseState;
+          if (parsed && Array.isArray(parsed.users) && Array.isArray(parsed.batches)) {
+            this.activeDbFile = candidate;
+            return parsed;
+          }
         }
+      } catch (err) {
+        console.error(`Failed to read DB file ${candidate}:`, err);
       }
-    } catch (err) {
-      console.error('Failed to read DB file, recreating seed state:', err);
     }
     const seed = createInitialSeedState();
     this.saveState(seed);
@@ -619,12 +625,27 @@ class AgriNexusStore {
   }
 
   private saveState(next: DatabaseState): void {
-    if (!fs.existsSync(DATA_DIR)) {
-      fs.mkdirSync(DATA_DIR, { recursive: true });
+    const payload = JSON.stringify(next, null, 2);
+    const tryWrite = (targetFile: string) => {
+      const dir = path.dirname(targetFile);
+      if (!fs.existsSync(dir)) {
+        fs.mkdirSync(dir, { recursive: true });
+      }
+      const tmpFile = `${targetFile}.tmp`;
+      fs.writeFileSync(tmpFile, payload, 'utf-8');
+      fs.renameSync(tmpFile, targetFile);
+      this.activeDbFile = targetFile;
+    };
+
+    try {
+      tryWrite(this.activeDbFile);
+    } catch {
+      try {
+        tryWrite(path.join('/tmp/agrinexus-data', 'agrinexus-db.json'));
+      } catch (err) {
+        console.error('Unable to persist DB state to disk:', err);
+      }
     }
-    const tmpFile = `${DB_FILE}.tmp`;
-    fs.writeFileSync(tmpFile, JSON.stringify(next, null, 2), 'utf-8');
-    fs.renameSync(tmpFile, DB_FILE);
   }
 
   public commit(): void {
@@ -671,8 +692,15 @@ class AgriNexusStore {
     return this.state.clusters;
   }
 
+  private signSessionPayload(userId: string, issuedAt: number): string {
+    const secret = process.env.SESSION_SECRET || 'agrinexus-sih-2026-session-secret';
+    const payload = `${userId}.${issuedAt}`;
+    const sig = crypto.createHmac('sha256', secret).update(payload).digest('hex');
+    return `${payload}.${sig}`;
+  }
+
   public createSession(userId: string): string {
-    const token = crypto.randomBytes(24).toString('hex');
+    const token = this.signSessionPayload(userId, Date.now());
     this.state.sessions.push({
       token,
       userId,
@@ -688,8 +716,27 @@ class AgriNexusStore {
   public getUserByToken(token?: string): StoredUser | undefined {
     if (!token) return undefined;
     const session = this.state.sessions.find((s) => s.token === token);
-    if (!session) return undefined;
-    return this.state.users.find((u) => u.id === session.userId);
+    if (session) {
+      return this.state.users.find((u) => u.id === session.userId);
+    }
+    const parts = token.split('.');
+    if (parts.length === 3) {
+      const [userId, issuedStr, sig] = parts;
+      const issuedAt = Number(issuedStr);
+      if (userId && Number.isFinite(issuedAt) && /^[0-9a-f]+$/i.test(sig)) {
+        const expected = this.signSessionPayload(userId, issuedAt);
+        const expectedSig = expected.split('.')[2];
+        const expectedBuf = Buffer.from(expectedSig, 'hex');
+        const sigBuf = Buffer.from(sig, 'hex');
+        if (
+          expectedBuf.length === sigBuf.length &&
+          crypto.timingSafeEqual(expectedBuf, sigBuf)
+        ) {
+          return this.state.users.find((u) => u.id === userId);
+        }
+      }
+    }
+    return undefined;
   }
 
   public createOtp(phone: string): string {

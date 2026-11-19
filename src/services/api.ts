@@ -111,6 +111,15 @@ export function getCachedOfflineData(): {
   }
 }
 
+export class ApiError extends Error {
+  status: number;
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = 'ApiError';
+    this.status = status;
+  }
+}
+
 async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T> {
   const token = getStoredToken();
   const headers: Record<string, string> = {
@@ -123,7 +132,11 @@ async function apiRequest<T>(url: string, options: RequestInit = {}): Promise<T>
   const res = await fetch(url, { ...options, headers });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error((data as { error?: string }).error || `Request failed (${res.status})`);
+    const msg = (data as { error?: string }).error || `Request failed (${res.status})`;
+    if (res.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('agrinexus:unauthorized'));
+    }
+    throw new ApiError(msg, res.status);
   }
   return data as T;
 }

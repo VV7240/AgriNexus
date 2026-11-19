@@ -1,16 +1,16 @@
 import 'dotenv/config';
-import express, { NextFunction, Request, Response } from 'express';
+import express, { type NextFunction, type Request, type Response } from 'express';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { generateAgriNexusAssistReply } from './server/gemini';
-import { hashPassword, store, StoredUser, verifyPassword } from './server/store';
-import {
+import { generateAgriNexusAssistReply } from './server/gemini.ts';
+import { hashPassword, store, type StoredUser, verifyPassword } from './server/store.ts';
+import type {
   ActionType,
   Batch,
   ChatMessage,
   Language,
   UserRole,
-} from './src/types';
+} from './src/types.ts';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

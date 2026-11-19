@@ -318,6 +318,23 @@
   ],
   "batches": [
     {
+      "id": "OFF-8272",
+      "farmerId": "u-farmer-1",
+      "farmerName": "Ramesh Patil",
+      "fpoId": "fpo-sahyadri",
+      "crop": "Tomato",
+      "quantityKg": 777,
+      "harvestTime": "2026-11-19T11:39:00.000Z",
+      "locality": "Nashik",
+      "ambientTempC": 28,
+      "initialQuality": 96,
+      "storageMode": "ambient",
+      "status": "active",
+      "pendingSync": false,
+      "createdAt": "2026-11-19T15:39:13.270Z",
+      "updatedAt": "2026-11-19T15:39:13.370Z"
+    },
+    {
       "id": "B-2601",
       "farmerId": "u-farmer-1",
       "farmerName": "Ramesh Patil",
@@ -330,9 +347,11 @@
       "initialQuality": 96,
       "storageMode": "ambient",
       "notes": "Grade-A Vaishali tomatoes harvested early morning.",
-      "status": "active",
+      "status": "action_confirmed",
       "createdAt": "2026-11-19T03:05:56.216Z",
-      "updatedAt": "2026-11-19T03:05:56.216Z"
+      "updatedAt": "2026-11-19T15:39:12.947Z",
+      "confirmedAction": "redirect",
+      "confirmedAt": "2026-11-19T15:39:12.947Z"
     },
     {
       "id": "B-2602",
@@ -347,10 +366,12 @@
       "initialQuality": 92,
       "storageMode": "ambient",
       "notes": "Held in farm shed awaiting transport.",
-      "status": "active",
+      "status": "action_confirmed",
       "createdAt": "2026-11-18T08:05:56.216Z",
-      "updatedAt": "2026-11-18T23:05:56.216Z",
-      "clusterId": "CLU-002"
+      "updatedAt": "2026-11-19T15:38:43.636Z",
+      "clusterId": "CLU-002",
+      "confirmedAction": "process",
+      "confirmedAt": "2026-11-19T15:38:43.636Z"
     },
     {
       "id": "B-2603",
@@ -417,7 +438,7 @@
         "Ramesh Patil"
       ],
       "totalQuantityKg": 650,
-      "avgQualityScore": 18.13,
+      "avgQualityScore": 5.69,
       "individualTransportCostPerKg": 3.8,
       "pooledTransportCostPerKg": 2.3,
       "totalTransportSavingsInr": 975,
@@ -436,20 +457,21 @@
       "fpoId": "fpo-sahyadri",
       "batchIds": [
         "B-2601",
-        "B-2604"
+        "B-2604",
+        "OFF-8272"
       ],
       "farmerNames": [
         "Ramesh Patil",
         "Sunita Deshmukh"
       ],
-      "totalQuantityKg": 2500,
-      "avgQualityScore": 86.37,
+      "totalQuantityKg": 3277,
+      "avgQualityScore": 82.3,
       "individualTransportCostPerKg": 3.6,
       "pooledTransportCostPerKg": 2.1,
-      "totalTransportSavingsInr": 3750,
+      "totalTransportSavingsInr": 4915.5,
       "storageFacilityName": "Nashik FPO Cold Hub",
       "storageSlotTotalKg": 10000,
-      "storageSlotAllocatedKg": 2500,
+      "storageSlotAllocatedKg": 3277,
       "harvestWindowHours": 48,
       "status": "candidate",
       "buyerInterests": []
@@ -468,7 +490,7 @@
         "Sunita Deshmukh"
       ],
       "totalQuantityKg": 4250,
-      "avgQualityScore": 89.51,
+      "avgQualityScore": 88.59,
       "individualTransportCostPerKg": 2.8,
       "pooledTransportCostPerKg": 1.7,
       "totalTransportSavingsInr": 4675,
@@ -596,6 +618,26 @@
       "token": "45f95b38b684da2699d59eab9cac51ae5922bd0bad027cf4",
       "userId": "u-fpo-1",
       "createdAt": "2026-11-19T11:06:33.013Z"
+    },
+    {
+      "token": "u-farmer-1.1795102721683.c87bdf3abb88a741d3424250fb2ddc8f8f3b39ae03495945086225758e60a46b",
+      "userId": "u-farmer-1",
+      "createdAt": "2026-11-19T15:38:41.684Z"
+    },
+    {
+      "token": "u-farmer-1.1795102750709.785a2cc1bd1de0f932691acf9f5582bc1863ac1cf53785cfb37b881a61382114",
+      "userId": "u-farmer-1",
+      "createdAt": "2026-11-19T15:39:10.709Z"
+    },
+    {
+      "token": "u-farmer-1.1795102755227.0c215a4df8f9ddbf7ce9050db463cad6c11341967c3c0b4f5918a20bcfa4c7e5",
+      "userId": "u-farmer-1",
+      "createdAt": "2026-11-19T15:39:15.227Z"
+    },
+    {
+      "token": "u-farmer-1.1795105227513.3e69c55d9c4248bd8e93e0393c312b3914fc074c3296c13a2ef6fbc22042f214",
+      "userId": "u-farmer-1",
+      "createdAt": "2026-11-19T16:20:27.514Z"
     }
   ]
 }

@@ -1,0 +1,339 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>AgriNexus — Setup, 1-Click Launch & Authentication Guide</title>
+<style>
+  @page { size: A4; margin: 16mm 15mm 16mm 15mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Arial, sans-serif;
+    color: #141A15;
+    line-height: 1.48;
+    font-size: 10.5pt;
+    margin: 0;
+    padding: 0;
+  }
+  .header {
+    border-bottom: 2px solid #047857;
+    padding-bottom: 10px;
+    margin-bottom: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+  }
+  .brand { font-size: 20pt; font-weight: 800; color: #064E3B; letter-spacing: -0.02em; }
+  .subtitle { font-size: 9.5pt; color: #4B554D; margin-top: 2px; }
+  .meta { font-size: 8.5pt; color: #647066; text-align: right; font-family: ui-monospace, monospace; }
+  h2 {
+    font-size: 13pt;
+    font-weight: 700;
+    color: #064E3B;
+    border-left: 3px solid #047857;
+    padding-left: 8px;
+    margin: 18px 0 8px 0;
+    page-break-after: avoid;
+  }
+  h3 {
+    font-size: 10.5pt;
+    font-weight: 700;
+    color: #141A15;
+    margin: 12px 0 4px 0;
+    page-break-after: avoid;
+  }
+  p, ul, ol { margin: 5px 0 8px 0; }
+  ul, ol { padding-left: 18px; }
+  li { margin-bottom: 3px; }
+  code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    background: #F1F3EF;
+    padding: 1px 4px;
+    border-radius: 3px;
+    font-size: 9pt;
+    color: #064E3B;
+  }
+  pre {
+    background: #F7F8F6;
+    border: 1px solid #D4D9D0;
+    border-radius: 6px;
+    padding: 9px 11px;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: 8.8pt;
+    line-height: 1.4;
+    overflow-x: auto;
+    margin: 6px 0 10px 0;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 8px 0 12px 0;
+    font-size: 9pt;
+    page-break-inside: avoid;
+  }
+  th, td {
+    border: 1px solid #D4D9D0;
+    padding: 6px 8px;
+    text-align: left;
+    vertical-align: top;
+  }
+  th {
+    background: #ECFDF5;
+    color: #064E3B;
+    font-weight: 700;
+  }
+  tr:nth-child(even) td { background: #FAFBF9; }
+  .callout {
+    background: #ECFDF5;
+    border: 1px solid #A7F3D0;
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin: 8px 0 12px 0;
+    font-size: 9.5pt;
+  }
+  .warn {
+    background: #FFFBEB;
+    border: 1px solid #FDE68A;
+    border-radius: 6px;
+    padding: 9px 12px;
+    margin: 8px 0 12px 0;
+    font-size: 9.5pt;
+  }
+  .page-break { page-break-before: always; }
+  .mono { font-family: ui-monospace, monospace; font-size: 8.7pt; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="brand">AgriNexus</div>
+    <div class="subtitle">AI-Powered Post-Harvest Decision Intelligence Platform · Setup &amp; Authentication Reference</div>
+  </div>
+  <div class="meta">
+    SIH 2026 · PS-26193<br/>
+    Port: 3000 · Node.js 20+ / 22
+  </div>
+</div>
+
+<div class="callout">
+  <strong>Quick Start After Extracting GitHub ZIP:</strong> Because AgriNexus is a full-stack React + Express + AI backend application, you do not need to run commands manually—just double-click <code>Launch_AgriNexus.bat</code> (Windows) or <code>Launch_AgriNexus.command</code> (macOS). It automatically creates <code>.env</code>, installs dependencies on first run, starts the server on <code>http://localhost:3000</code>, and opens the website in your browser.
+</div>
+
+<h2>1. One-Click Launch Files (GitHub ZIP Usage)</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Operating System</th>
+      <th>File to Double-Click / Run</th>
+      <th>What It Does Automatically</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Windows 10 / 11</strong></td>
+      <td class="mono">Launch_AgriNexus.bat</td>
+      <td>Verifies Node.js, creates <code>.env</code> from <code>.env.example</code>, runs <code>npm install</code> if <code>node_modules</code> is missing, launches server, opens <code>http://localhost:3000</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>macOS</strong></td>
+      <td class="mono">Launch_AgriNexus.command</td>
+      <td>Installs missing packages, boots Express + Vite server on port 3000, opens default browser. (If macOS blocks first launch, right-click &rarr; Open).</td>
+    </tr>
+    <tr>
+      <td><strong>Linux / Git Bash</strong></td>
+      <td class="mono">./start-agrinexus.sh</td>
+      <td>Installs dependencies if missing, starts backend + UI on port 3000, opens browser via <code>xdg-open</code>.</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>Prerequisite:</strong> Install <strong>Node.js v20 LTS or v22</strong> from <code>https://nodejs.org/</code> before double-clicking any launcher.</p>
+
+<h3>Environment Variables (<code>.env</code>)</h3>
+<ul>
+  <li><code>GEMINI_API_KEY</code> — Required for live <strong>AgriNexus Assist</strong> RAG chat powered by Gemini. Without it, the app still boots cleanly and supports offline deterministic agronomy templates.</li>
+  <li><code>SESSION_SECRET</code> — Secret key used to sign persistent HMAC-SHA256 Bearer tokens (recommended for production deployments).</li>
+  <li><code>PORT</code> — Server listening port (defaults to <code>3000</code>).</li>
+</ul>
+
+<h2>2. Seeded User Accounts &amp; Demo Credentials</h2>
+<p>All pre-seeded accounts share the default password <code class="mono">AgriNexus@2026</code> (hashed with <code>crypto.scryptSync</code> + random 16-byte salt). On the login page you can either use the <strong>Quick Role Evaluation Access</strong> one-click buttons or sign in manually using the credentials below:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>Role</th>
+      <th>Name &amp; Locality</th>
+      <th>10-Digit Mobile (OTP Login)</th>
+      <th>Email &amp; Password Login</th>
+      <th>Account Status</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><strong>Farmer</strong></td>
+      <td>Ramesh Patil<br/>Nashik</td>
+      <td class="mono">9822011223</td>
+      <td class="mono">ramesh.patil@sahyadrifpo.in<br/>AgriNexus@2026</td>
+      <td>Approved (Active)</td>
+    </tr>
+    <tr>
+      <td><strong>Farmer</strong></td>
+      <td>Sunita Deshmukh<br/>Nashik (Hindi UI)</td>
+      <td class="mono">9822044556</td>
+      <td class="mono">sunita.d@sahyadrifpo.in<br/>AgriNexus@2026</td>
+      <td>Approved (Active)</td>
+    </tr>
+    <tr>
+      <td><strong>Farmer</strong></td>
+      <td>Harpreet Singh<br/>Pune</td>
+      <td class="mono">9814077889</td>
+      <td class="mono">harpreet.s@sahyadrifpo.in<br/>AgriNexus@2026</td>
+      <td>Pending FPO Approval (blocked until FPO Admin approves)</td>
+    </tr>
+    <tr>
+      <td><strong>FPO Admin</strong></td>
+      <td>Vikram Kulkarni<br/>Nashik</td>
+      <td class="mono">9822099001</td>
+      <td class="mono">admin@sahyadrifpo.in<br/>AgriNexus@2026</td>
+      <td>Approved (Active)</td>
+    </tr>
+    <tr>
+      <td><strong>Buyer / Processor</strong></td>
+      <td>Ananya Verma (FreshBasket Agro)<br/>Mumbai</td>
+      <td class="mono">9820055443</td>
+      <td class="mono">procurement@freshbasket.in<br/>AgriNexus@2026</td>
+      <td>Approved (Active)</td>
+    </tr>
+    <tr>
+      <td><strong>System Admin</strong></td>
+      <td>Dr. Kavita Rao<br/>Bengaluru</td>
+      <td class="mono">9811022334</td>
+      <td class="mono">sysadmin@agrinexus.gov.in<br/>AgriNexus@2026</td>
+      <td>Approved (Active)</td>
+    </tr>
+  </tbody>
+</table>
+
+<div class="warn">
+  <strong>How OTP Testing Works Locally:</strong> When you click <strong>Send OTP</strong> on the login screen (<code>POST /api/auth/request-otp</code>), a 6-digit single-use OTP valid for <strong>5 minutes</strong> is generated and returned as <code>devPreviewCode</code> inside the UI notification banner so you can test OTP login without an external SMS gateway.
+</div>
+
+<div class="page-break"></div>
+
+<h2>3. Authentication Flows &amp; Security Controls</h2>
+<ol>
+  <li><strong>Mobile + 6-Digit OTP Flow (Primary for Farmers):</strong>
+    <ul>
+      <li><code>POST /api/auth/request-otp</code> normalizes the 10-digit Indian mobile number and stores a single-use OTP expiring in 300 seconds.</li>
+      <li><code>POST /api/auth/verify-otp</code> verifies the OTP, marks it as used (cannot be reused), checks farmer FPO approval status, resets failed attempts, and issues a signed Bearer session token.</li>
+    </ul>
+  </li>
+  <li><strong>Email + Password Flow (FPO Admin, Buyer, System Admin, Farmers):</strong>
+    <ul>
+      <li><code>POST /api/auth/login</code> verifies password hashes via <code>crypto.scryptSync</code> + <code>crypto.timingSafeEqual</code>.</li>
+    </ul>
+  </li>
+  <li><strong>New Account Registration:</strong>
+    <ul>
+      <li><code>POST /api/auth/register</code> supports registering as <code>farmer</code> (10-digit mobile + optional OTP), <code>fpo_admin</code>, or <code>buyer</code> (email + min 6-character password).</li>
+    </ul>
+  </li>
+  <li><strong>Account Recovery (Forgot / OTP Recovery):</strong>
+    <ul>
+      <li><code>POST /api/auth/recover</code> verifies a 6-digit OTP for a registered mobile number, clears any active lockout, optionally resets password, and logs the user back in.</li>
+    </ul>
+  </li>
+  <li><strong>Brute-Force Lockout Policy:</strong>
+    <ul>
+      <li><strong>5 consecutive failed login/OTP attempts</strong> automatically lock the account for <strong>15 minutes</strong> (HTTP <code>423 Locked</code>).</li>
+      <li>FPO Admins and System Admins can also unlock accounts manually from the <strong>Admin Console</strong>.</li>
+    </ul>
+  </li>
+  <li><strong>Persistent Signed Sessions &amp; Offline Sync Recovery:</strong>
+    <ul>
+      <li>Sessions issue HMAC-SHA256 signed tokens (<code>&lt;userId&gt;.&lt;issuedAt&gt;.&lt;hmac&gt;</code>) stored in browser <code>localStorage</code> under <code>agrinexus_token</code> alongside <code>agrinexus_user</code>.</li>
+      <li>Signed tokens survive server restarts, allowing queued offline batches (<code>agrinexus_offline_batches</code>) to sync cleanly on reconnect. If a token is missing or invalid (HTTP <code>401</code>), the client automatically clears cached session state and returns cleanly to the login screen.</li>
+    </ul>
+  </li>
+</ol>
+
+<h2>4. Role-Based Access Control (RBAC) &amp; API Endpoints</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Endpoint</th>
+      <th>Method</th>
+      <th>Allowed Roles</th>
+      <th>Purpose</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td class="mono">/api/auth/request-otp, /verify-otp, /login, /register, /recover, /demo-login</td>
+      <td>POST</td>
+      <td>Public</td>
+      <td>OTP dispatch, login, signup, recovery, quick demo role switch</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/auth/me, /api/auth/preferences</td>
+      <td>GET / PATCH</td>
+      <td>All Authenticated</td>
+      <td>Current profile &amp; language (<code>en</code>/<code>hi</code>) / locality updates</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/batches, /api/batches/sync, /api/batches/:id</td>
+      <td>GET / POST / PATCH</td>
+      <td>Farmer, FPO Admin, Sys Admin</td>
+      <td>Register harvest batches, offline queue sync, update temperature/storage</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/batches/:id/confirm, /outcome</td>
+      <td>POST</td>
+      <td>Farmer, FPO Admin, Sys Admin</td>
+      <td>Confirm Sell/Store/Process/Redirect action &amp; record realised outcome</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/market-prices, /refresh, /:id</td>
+      <td>GET / POST / PATCH</td>
+      <td>All Auth (Override: Admins)</td>
+      <td>View Agmarknet/eNAM feeds, refresh feeds, or manual admin override</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/clusters, /:id/confirm, /:id/interest</td>
+      <td>GET / POST</td>
+      <td>All Auth (Confirm: FPO/Sys Admin; Interest: Buyer/Admins)</td>
+      <td>Pooled transport cluster formation, dispatch confirmation, buyer bids</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/scenarios, /api/reports/summary</td>
+      <td>GET / POST</td>
+      <td>Farmer, FPO Admin, Sys Admin</td>
+      <td>Save What-If simulations &amp; inspect loss-avoided / savings reports</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/assist/history, /chat, /helpdesk</td>
+      <td>GET / POST</td>
+      <td>All Authenticated</td>
+      <td>Bilingual Gemini RAG assistant &amp; FPO helpdesk escalation</td>
+    </tr>
+    <tr>
+      <td class="mono">/api/admin/overview, /users/:id, /crops/:crop, /settings</td>
+      <td>GET / PATCH</td>
+      <td>FPO Admin, System Admin</td>
+      <td>Approve/unlock users, tune Q10 crop shelf-life/cost constants, system thresholds</td>
+    </tr>
+  </tbody>
+</table>
+
+<h2>5. Production Deployment Commands &amp; Checklist</h2>
+<pre>npm install
+npm run build
+NODE_ENV=production node server.ts</pre>
+<ul>
+  <li><strong>Data Persistence:</strong> Local runs store state in <code>data/agrinexus-db.json</code> (with automatic fallback to <code>/tmp/agrinexus-data/agrinexus-db.json</code> in read-only containers). For multi-instance cloud scaling, migrate <code>server/store.ts</code> to PostgreSQL (Cloud SQL) or Firebase Firestore.</li>
+  <li><strong>External Production Integrations:</strong> Connect MSG91/Twilio in <code>/api/auth/request-otp</code> (and remove <code>devPreviewCode</code>), Agmarknet Data.gov.in API in <code>/api/market-prices/refresh</code>, and OpenWeatherMap API in batch creation.</li>
+</ul>
+
+</body>
+</html>

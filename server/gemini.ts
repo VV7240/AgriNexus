@@ -1,5 +1,5 @@
 import { GoogleGenAI, Type } from '@google/genai';
-import { EnrichedBatch, Language, MarketPrice, User } from '../src/types';
+import type { EnrichedBatch, Language, MarketPrice, User } from '../src/types.ts';
 
 const ai = process.env.GEMINI_API_KEY
   ? new GoogleGenAI({

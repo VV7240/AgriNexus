@@ -33,6 +33,7 @@ import { SettingsView } from './components/SettingsView';
 import { WhatIfSimulatorView } from './components/WhatIfSimulatorView';
 import {
   api,
+  ApiError,
   cacheOfflineData,
   clearQueuedOfflineBatches,
   clearSession,
@@ -76,7 +77,15 @@ type PageId =
   | 'settings';
 
 export default function App() {
-  const [user, setUser] = useState<User | null>(() => getStoredUser());
+  const [user, setUser] = useState<User | null>(() => {
+    const storedUser = getStoredUser();
+    const storedToken = getStoredToken();
+    if (storedUser && !storedToken) {
+      clearSession();
+      return null;
+    }
+    return storedUser;
+  });
   const [language, setLanguage] = useState<Language>(
     () => getStoredUser()?.languagePreference ?? 'en'
   );
@@ -122,6 +131,7 @@ export default function App() {
 
   const [loadingData, setLoadingData] = useState(false);
   const [toastMsg, setToastMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
   const loadWorkspaceData = useCallback(
     async (activeUser: User, isOffline: boolean) => {
@@ -175,6 +185,11 @@ export default function App() {
           setReportsData(rep);
         }
       } catch (err) {
+        if (err instanceof ApiError && err.status === 401) {
+          clearSession();
+          setUser(null);
+          return;
+        }
         console.warn('Falling back to offline cached data:', err);
         const cached = getCachedOfflineData();
         if (cached.batches.length > 0) {
@@ -188,6 +203,17 @@ export default function App() {
     },
     []
   );
+
+  useEffect(() => {
+    const onUnauthorized = () => {
+      clearSession();
+      setUser(null);
+      setBatches([]);
+      setClusters([]);
+    };
+    window.addEventListener('agrinexus:unauthorized', onUnauthorized);
+    return () => window.removeEventListener('agrinexus:unauthorized', onUnauthorized);
+  }, []);
 
   // Initial session validation & ?autostart=1 support
   useEffect(() => {
@@ -248,14 +274,23 @@ export default function App() {
     }
   }
 
+  function showError(msg: string) {
+    setErrorMsg(msg);
+    setTimeout(() => setErrorMsg(null), 5000);
+  }
+
   async function handleSyncQueue() {
     if (pendingQueue.length === 0 || !user) return;
-    const res = await api.syncOfflineBatches(pendingQueue);
-    clearQueuedOfflineBatches();
-    setPendingQueue([]);
-    setBatches(res.batches);
-    await loadWorkspaceData(user, false);
-    showToast(`Synced ${res.syncedCount} offline batch(es) to server.`);
+    try {
+      const res = await api.syncOfflineBatches(pendingQueue);
+      clearQueuedOfflineBatches();
+      setPendingQueue([]);
+      setBatches(res.batches);
+      await loadWorkspaceData(user, false);
+      showToast(`Synced ${res.syncedCount} offline batch(es) to server.`);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to sync offline batches.');
+    }
   }
 
   function handleToggleOffline(enabled: boolean) {
@@ -263,11 +298,11 @@ export default function App() {
     setOfflineModeStorage(enabled);
     if (!enabled && user) {
       if (pendingQueue.length > 0) {
-        handleSyncQueue().catch(() => {});
+        void handleSyncQueue();
       } else {
         loadWorkspaceData(user, false);
+        showToast('Back online · Live data synced.');
       }
-      showToast('Back online · Live data synced.');
     } else {
       showToast('Offline mode enabled · Writes will queue locally.');
     }
@@ -339,9 +374,13 @@ export default function App() {
       showToast(`Action (${action}) confirmed locally.`);
       return;
     }
-    await api.confirmBatchAction(id, action);
-    await loadWorkspaceData(user, false);
-    showToast(`Action (${action.toUpperCase()}) confirmed for batch ${id}.`);
+    try {
+      await api.confirmBatchAction(id, action);
+      await loadWorkspaceData(user, false);
+      showToast(`Action (${action.toUpperCase()}) confirmed for batch ${id}.`);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to confirm action.');
+    }
   }
 
   async function handleLogOutcome(
@@ -353,22 +392,34 @@ export default function App() {
     }
   ) {
     if (!user) return;
-    await api.logBatchOutcome(id, payload);
-    await loadWorkspaceData(user, false);
-    showToast('Actual outcome recorded for ML model training.');
+    try {
+      await api.logBatchOutcome(id, payload);
+      await loadWorkspaceData(user, false);
+      showToast('Actual outcome recorded for ML model training.');
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to log outcome.');
+    }
   }
 
   async function handleConfirmCluster(clusterId: string) {
     if (!user) return;
-    await api.confirmCluster(clusterId);
-    await loadWorkspaceData(user, false);
+    try {
+      await api.confirmCluster(clusterId);
+      await loadWorkspaceData(user, false);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to confirm cluster.');
+    }
   }
 
   async function handleExpressInterest(clusterId: string, note = 'Interested in pooled lot') {
     if (!user) return;
-    await api.expressBuyerInterest(clusterId, note);
-    await loadWorkspaceData(user, false);
-    showToast(`Procurement interest sent for ${clusterId}.`);
+    try {
+      await api.expressBuyerInterest(clusterId, note);
+      await loadWorkspaceData(user, false);
+      showToast(`Procurement interest sent for ${clusterId}.`);
+    } catch (err) {
+      showError(err instanceof Error ? err.message : 'Failed to record interest.');
+    }
   }
 
   if (!user) {
@@ -613,6 +664,15 @@ export default function App() {
         {toastMsg && (
           <div className="mx-4 sm:mx-8 mt-4 px-4 py-2.5 bg-emerald-800 text-white text-xs font-medium rounded-lg">
             {toastMsg}
+          </div>
+        )}
+
+        {errorMsg && (
+          <div
+            role="alert"
+            className="mx-4 sm:mx-8 mt-4 px-4 py-2.5 bg-red-50 border border-red-200 text-red-800 text-xs font-medium rounded-lg"
+          >
+            {errorMsg}
           </div>
         )}
 
